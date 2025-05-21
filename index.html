@@ -3,84 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CrCl Weight Helper</title>
+  <title>CrCl Weight & Calculation Tool</title>
   <style>
-    :root {
-      --primary-color: #d94f70;
-      --background: #fff3f7;
-      --text: #2c3e50;
-      --card-bg: #ffffff;
-      --border-radius: 12px;
-      --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--background);
-      color: var(--text);
+      background-color: #fff3f7;
       margin: 0;
       padding: 0;
+      color: #2c3e50;
     }
 
     .container {
-      max-width: 100%;
-      margin: auto;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .card {
-      background-color: var(--card-bg);
-      padding: 20px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
       max-width: 500px;
       margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
     h1 {
       text-align: center;
-      color: var(--primary-color);
-      margin-bottom: 10px;
-    }
-
-    p.description {
-      text-align: center;
-      font-size: 0.95rem;
-      color: #666;
+      color: #d94f70;
     }
 
     label {
       display: block;
       margin-top: 20px;
-      font-weight: 600;
+      font-weight: bold;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 12px;
       margin-top: 6px;
+      font-size: 1rem;
       border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 1rem;
       box-sizing: border-box;
     }
 
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 25px;
-    }
-
     button {
-      flex: 1;
+      margin-top: 25px;
+      width: 100%;
       padding: 14px;
-      background-color: var(--primary-color);
+      font-size: 1rem;
+      font-weight: bold;
+      background-color: #d94f70;
       color: white;
       border: none;
       border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
       cursor: pointer;
     }
 
@@ -89,106 +61,202 @@
     }
 
     .result {
-      margin-top: 25px;
-      padding: 18px;
+      margin-top: 30px;
+      padding: 20px;
       background-color: #fde6ed;
-      border-left: 5px solid var(--primary-color);
+      border-left: 5px solid #d94f70;
       border-radius: 8px;
-      font-size: 1rem;
-      line-height: 1.5;
     }
 
-    @media screen and (max-width: 500px) {
-      .card {
-        margin: 15px 10px;
-        padding: 18px;
-      }
-
-      h1 {
-        font-size: 1.5rem;
-      }
+    .highlight {
+      font-weight: bold;
+      color: #000000;
     }
+
+    table {
+      width: 100%;
+      margin-top: 15px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #fff0f4;
+    }
+
+.stat-block {
+  background-color: #fff0f6;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5c2d7;
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="card">
-      <h1>CrCl Weight Helper</h1>
-      <p class="description">Determine which weight to use for the Cockcroft-Gault equation</p>
+    <h1>CrCl Calculator</h1>
 
-      <label for="actualbw"><strong>ACTUAL</strong> Body Weight (kg):</label>
-      <input type="number" id="actualbw" placeholder="actual weight" step="any" />
+    <label for="age">Age:</label>
+    <input type="number" id="age" inputmode="numeric" pattern="[0-9]*" />
 
-      <label for="ibw"><strong>IDEAL</strong> Body Weight (kg):</label>
-      <input type="number" id="ibw" placeholder="calculated" step="any" />
+    <label for="sex">Sex:</label>
+    <select id="sex">
+      <option value="female">Female</option>
+      <option value="male">Male</option>
+    </select>
 
-      <label for="adjbw"><strong>ADJUSTED</strong> Body Weight (kg):</label>
-      <input type="number" id="adjbw" placeholder="calculated; or put 0 if n/a" step="any" />
+    <label for="height">Height (cm):</label>
+    <input type="number" id="height" inputmode="decimal" step="any" />
 
-      <div class="button-group">
-        <button onclick="decideWeight()">Calculate</button>
-        <button onclick="clearFields()">Clear</button>
-      </div>
+    <label for="weight">Actual Body Weight (kg):</label>
+    <input type="number" id="weight" inputmode="decimal" step="any" />
 
-      <div class="result" id="output"></div>
-    </div>
+    <label for="scr">Serum Creatinine (mg/dL):</label>
+    <input type="number" id="scr" inputmode="decimal" step="any" />
+
+    <button onclick="calculate()">Calculate CrCl</button>
+
+    <div class="result" id="output"></div>
   </div>
 
   <script>
-    function decideWeight() {
-      const ibw = parseFloat(document.getElementById("ibw").value);
-      const adjbw = parseFloat(document.getElementById("adjbw").value);
-      const actual = parseFloat(document.getElementById("actualbw").value);
+    function calculate() {
+      const age = parseFloat(document.getElementById("age").value);
+      const sex = document.getElementById("sex").value;
+      const heightCm = parseFloat(document.getElementById("height").value);
+      const weight = parseFloat(document.getElementById("weight").value);
+      const scr = parseFloat(document.getElementById("scr").value);
       const output = document.getElementById("output");
 
-      if (isNaN(ibw) || isNaN(adjbw) || isNaN(actual)) {
+      if (isNaN(age) || isNaN(heightCm) || isNaN(weight) || isNaN(scr)) {
         output.innerHTML = "Please fill in all fields.";
         return;
       }
 
-      const threshold = ibw * 1.2;
-      const percentOver = ((actual - ibw) / ibw) * 100;
-      let recommendation = "";
-      let resultOrder = "";
+      const heightIn = heightCm / 2.54;
+      const heightM = heightCm / 100;
+      const bmi = weight / (heightM * heightM);
 
-      if (actual < ibw) {
-        recommendation = `Use <strong>ACTUAL Body Weight</strong> (${actual.toFixed(2)} kg) because it is <em>less than IBW</em>. This reflects reduced muscle mass.`;
-        resultOrder = `
-          <p><strong>Actual BW:</strong> ${actual.toFixed(2)} kg</p>
-          <p><strong>IBW:</strong> ${ibw.toFixed(2)} kg</p>
-          <p><strong>120% of IBW:</strong> ${threshold.toFixed(2)} kg</p>
-        `;
-      } else if (actual > threshold) {
-        recommendation = `Use <strong>Adjusted Body Weight</strong> (${adjbw.toFixed(2)} kg) because Actual BW is <em>more than 120% of IBW</em>.`;
-        resultOrder = `
-          <p><strong>IBW:</strong> ${ibw.toFixed(2)} kg</p>
-          <p><strong>120% of IBW:</strong> ${threshold.toFixed(2)} kg</p>
-          <p><strong>Actual BW:</strong> ${actual.toFixed(2)} kg</p>
+      // IBW Calculation
+      const ibw = sex === "male"
+        ? 50 + 2.3 * (heightIn - 60)
+        : 45.5 + 2.3 * (heightIn - 60);
+
+      // Adjusted BW
+      const adjbw = ibw + 0.4 * (weight - ibw);
+      const threshold = ibw * 1.2;
+      const abwPercent = (weight / ibw) * 100;
+
+      // Determine which weight to use
+      let selectedWeightType = "";
+      let selectedWeight = 0;
+
+      if (weight < ibw) {
+        selectedWeightType = "Actual";
+        selectedWeight = weight;
+      } else if (weight >= threshold) {
+        selectedWeightType = "Adjusted";
+        selectedWeight = adjbw;
+      } else {
+        selectedWeightType = "Actual";
+        selectedWeight = weight;
+      }
+
+      // CrCl calculations
+      const factor = sex === "female" ? 0.85 : 1;
+      const crclActual = Math.round(((140 - age) * weight * factor) / (72 * scr));
+      const crclIdeal = Math.round(((140 - age) * ibw * factor) / (72 * scr));
+      const crclAdjusted = Math.round(((140 - age) * adjbw * factor) / (72 * scr));
+      const crclFinal = Math.round(((140 - age) * selectedWeight * factor) / (72 * scr));
+
+      let resultTable = "";
+
+      if (weight < ibw) {
+        resultTable = `
+          <table>
+            <thead>
+              <tr> <span style="label">
+                <th>Weight Type</th>
+                <th>Value (kg)</th>
+                <th>CrCl (mL/min)</th> </span>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Actual</td>
+                <td>${weight.toFixed(2)}</td>
+                <td>${crclActual}</td>
+              </tr>
+            </tbody>
+          </table>
         `;
       } else {
-        recommendation = `Use <strong>IDEAL Body Weight</strong> (${ibw.toFixed(2)} kg) because Actual BW is between IBW and 120% of IBW.`;
-        resultOrder = `
-          <p><strong>IBW:</strong> ${ibw.toFixed(2)} kg</p>
-          <p><strong>120% of IBW:</strong> ${threshold.toFixed(2)} kg</p>
-          <p><strong>Actual BW:</strong> ${actual.toFixed(2)} kg</p>
+        resultTable = `
+          <table>
+            <thead>
+              <tr>
+                <th>Weight Type</th>
+                <th>Value (kg)</th>
+                <th>CrCl (mL/min)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Actual</td>
+                <td>${weight.toFixed(2)}</td>
+                <td>${crclActual}</td>
+              </tr>
+              <tr>
+                <td>Ideal</td>
+                <td>${ibw.toFixed(2)}</td>
+                <td>${crclIdeal}</td>
+              </tr>
+              <tr>
+                <td>Adjusted</td>
+                <td>${adjbw.toFixed(2)}</td>
+                <td>${crclAdjusted}</td>
+              </tr>
+            </tbody>
+          </table>
         `;
       }
 
-      const percentText = `Actual BW is ${percentOver.toFixed(1)}% of IBW.`;
-
       output.innerHTML = `
-        ${resultOrder}
-        <p><strong>${percentText}</strong></p>
-        <hr>
-        <p>${recommendation}</p>
-      `;
-    }
+       <div class="stat-block">
+  <div class="stat-row"><span class="label">IDEAL BW</span><span>${ibw.toFixed(2)} kg</span></div>
+  <div class="stat-row"><span class="label">ADJUSTED BW</span><span>${adjbw.toFixed(2)} kg</span></div>
+  <div class="stat-row"><span class="label">120% of IBW</span><span>${threshold.toFixed(2)} kg</span></div>
+  <div class="stat-row"><span class="label">ACTUAL BW is</span><span>${abwPercent.toFixed(1)}% of IBW</span></div>
+  <div class="stat-row"><span class="label">BMI</span><span>${bmi.toFixed(1)} kg/m²</span></div>
+</div>
 
-    function clearFields() {
-      document.getElementById("ibw").value = "";
-      document.getElementById("adjbw").value = "";
-      document.getElementById("actualbw").value = "";
-      document.getElementById("output").innerHTML = "";
+
+        ${resultTable}
+
+        <p class="highlight">Recommended:<BR> Use <strong>${selectedWeightType} Body Weight</strong> → <u>CrCl = <strong>${crclFinal} mL/min</strong></u></p>
+      `;
     }
   </script>
 </body>
